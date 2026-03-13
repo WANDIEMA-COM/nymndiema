@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NDIEMA HYBRID COACHING | Elite Client Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .nav-active { @apply bg-blue-600 text-white shadow-lg shadow-blue-600/20; }
+        
+        .locked-zone {
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(239, 68, 68, 0.1),
+                rgba(239, 68, 68, 0.1) 10px,
+                rgba(239, 68, 68, 0.2) 10px,
+                rgba(239, 68, 68, 0.2) 20px
+            );
+        }
+
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .pulse-boundary { animation: pulse-red 2s infinite; }
+    </style>
+</head>
+<body class="bg-[#050505] text-slate-100 min-h-screen overflow-hidden">
+
+    <!-- LOGIN OVERLAY -->
+    <div id="login-view" class="fixed inset-0 z-[100] bg-[#050505] flex items-center justify-center p-4">
+        <div class="w-full max-w-md bg-slate-900/50 border border-slate-800 p-10 rounded-[2.5rem] backdrop-blur-xl shadow-2xl">
+            <div class="text-center mb-10">
+                <div class="w-20 h-20 bg-gradient-to-tr from-blue-700 to-blue-400 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-blue-500/20 rotate-3">
+                    <i class="fas fa-bolt-lightning text-3xl text-white"></i>
+                </div>
+                <h2 class="text-3xl font-black tracking-tight italic">NDIEMA HYBRID</h2>
+                <p class="text-slate-500 text-xs font-bold uppercase tracking-[0.2em] mt-2">Performance Access Only</p>
+            </div>
+            <form id="login-form" class="space-y-5">
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 tracking-widest">Client Identifier</label>
+                    <input type="email" required class="w-full bg-slate-950/50 border border-slate-800 rounded-2xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-white" placeholder="your@email.com">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 tracking-widest">Security Pin</label>
+                    <input type="password" required class="w-full bg-slate-950/50 border border-slate-800 rounded-2xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-white font-mono" placeholder="••••">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-2xl transition-all shadow-xl shadow-blue-600/10 uppercase tracking-widest text-sm">
+                    Enter Ecosystem
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN APP WRAPPER -->
+    <div id="app-view" class="hidden flex h-screen overflow-hidden">
+        
+        <!-- SIDEBAR -->
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-72 bg-slate-950 border-r border-slate-900 transform -translate-x-full transition-transform lg:relative lg:translate-x-0">
+            <div class="p-8">
+                <h1 class="text-2xl font-black italic tracking-tighter text-white">NDIEMA <span class="text-blue-500">H.</span></h1>
+                <div class="flex items-center mt-2 space-x-2">
+                    <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                    <p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Secure Connection</p>
+                </div>
+            </div>
+            
+            <nav class="px-6 space-y-3">
+                <button onclick="showSection('dashboard')" class="nav-btn w-full flex items-center space-x-4 p-4 rounded-2xl transition-all nav-active group" data-target="dashboard">
+                    <i class="fas fa-layer-group w-5 text-lg"></i>
+                    <span class="font-bold text-sm tracking-tight">Main Dashboard</span>
+                </button>
+                <button onclick="showSection('contract')" class="nav-btn w-full flex items-center space-x-4 p-4 rounded-2xl transition-all text-slate-500 hover:bg-slate-900 hover:text-white group" data-target="contract">
+                    <i class="fas fa-file-contract w-5 text-lg"></i>
+                    <span class="font-bold text-sm tracking-tight">Rules of Engagement</span>
+                </button>
+                <button onclick="showSection('schedule')" class="nav-btn w-full flex items-center space-x-4 p-4 rounded-2xl transition-all text-slate-500 hover:bg-slate-900 hover:text-white group" data-target="schedule">
+                    <i class="fas fa-calendar-check w-5 text-lg"></i>
+                    <span class="font-bold text-sm tracking-tight">Session Scheduler</span>
+                </button>
+                
+                <div class="pt-10 border-t border-slate-900 mt-10">
+                    <div class="p-4 bg-slate-900/50 rounded-2xl border border-slate-800 mb-6">
+                        <p class="text-[10px] uppercase font-bold text-slate-500 mb-2 tracking-widest">Reschedule Credits</p>
+                        <div class="flex space-x-1">
+                            <div class="h-1.5 w-full bg-blue-500 rounded-full"></div>
+                            <div class="h-1.5 w-full bg-blue-500 rounded-full"></div>
+                            <div class="h-1.5 w-full bg-slate-800 rounded-full"></div>
+                        </div>
+                        <p class="text-[9px] text-slate-500 mt-2">2 of 3 available this month</p>
+                    </div>
+                    <button onclick="window.location.reload()" class="w-full flex items-center space-x-4 p-4 text-red-500/60 hover:text-red-500 hover:bg-red-500/5 rounded-2xl transition-all">
+                        <i class="fas fa-power-off w-5"></i>
+                        <span class="font-bold text-sm">Disconnect</span>
+                    </button>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- CONTENT AREA -->
+        <main class="flex-1 overflow-y-auto p-6 md:p-12 relative bg-[#050505]">
+            <div class="max-w-6xl mx-auto pb-20">
+                
+                <!-- DASHBOARD SECTION -->
+                <section id="section-dashboard" class="content-section space-y-10">
+                    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                        <div>
+                            <p class="text-blue-500 font-bold uppercase tracking-[0.3em] text-[10px] mb-2">Phase 01: Momentum</p>
+                            <h2 class="text-5xl font-black tracking-tighter">Command Center</h2>
+                        </div>
+                        <div id="boundary-countdown" class="bg-slate-900 p-4 rounded-3xl border border-slate-800 flex items-center space-x-6 px-8 transition-all">
+                            <div class="text-right">
+                                <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Lock-in Countdown</p>
+                                <p class="text-xl font-mono font-bold text-white tracking-tighter">18:42:10</p>
+                            </div>
+                            <div class="w-10 h-10 rounded-full border-2 border-blue-500/30 flex items-center justify-center">
+                                <i class="fas fa-hourglass-half text-blue-500 animate-spin-slow"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Metrics -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="bg-slate-900/40 border border-slate-800 p-8 rounded-[2rem] hover:border-blue-500/50 transition">
+                            <div class="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500 mb-6">
+                                <i class="fas fa-fire-flame-curved text-xl"></i>
+                            </div>
+                            <p class="text-3xl font-black italic tracking-tighter">4 <span class="text-sm font-normal text-slate-500 not-italic">/ 12</span></p>
+                            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-2">Sessions Hit</p>
+                        </div>
+                        <div class="bg-slate-900/40 border border-slate-800 p-8 rounded-[2rem]">
+                            <div class="w-12 h-12 bg-green-500/10 rounded-2xl flex items-center justify-center text-green-500 mb-6">
+                                <i class="fas fa-calendar-day text-xl"></i>
+                            </div>
+                            <p class="text-xl font-bold tracking-tight">Wednesday</p>
+                            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-2">Next Milestone</p>
+                        </div>
+                        <div class="bg-slate-900/40 border border-slate-800 p-8 rounded-[2rem]">
+                            <div class="w-12 h-12 bg-purple-500/10 rounded-2xl flex items-center justify-center text-purple-500 mb-6">
+                                <i class="fas fa-chart-line text-xl"></i>
+                            </div>
+                            <p class="text-3xl font-black tracking-tighter">92%</p>
+                            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-2">Focus Rating</p>
+                        </div>
+                        <div id="status-card" class="bg-amber-500/5 border border-amber-500/20 p-8 rounded-[2rem]">
+                            <div class="w-12 h-12 bg-amber-500/10 rounded-2xl flex items-center justify-center text-amber-500 mb-6">
+                                <i id="status-icon" class="fas fa-shield-slash text-xl"></i>
+                            </div>
+                            <p id="status-text" class="text-xl font-bold tracking-tight text-amber-500">Awaiting Signature</p>
+                            <p id="status-sub" class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-2">Action Required</p>
+                        </div>
+                    </div>
+
+                    <!-- Milestone Proof of Work -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="bg-slate-900/20 border border-slate-800 rounded-[2.5rem] p-10">
+                            <h3 class="text-xl font-bold mb-6 flex items-center">
+                                <span class="w-2 h-6 bg-blue-600 rounded-full mr-3"></span>
+                                Last Session Proof of Work
+                            </h3>
+                            <div class="space-y-6">
+                                <div class="bg-slate-950/50 p-6 rounded-2xl border border-slate-800">
+                                    <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Focus Area</p>
+                                    <p class="text-lg font-medium">Metabolic Conditioning & Core Integration</p>
+                                </div>
+                                <div class="flex items-center justify-between px-2">
+                                    <div class="flex -space-x-3">
+                                        <div class="w-10 h-10 rounded-full bg-slate-800 border-2 border-slate-950 flex items-center justify-center text-[10px] font-bold">JD</div>
+                                        <div class="w-10 h-10 rounded-full bg-blue-600 border-2 border-slate-950 flex items-center justify-center text-[10px] font-bold text-white">N.</div>
+                                    </div>
+                                    <p class="text-xs text-slate-500 font-mono">Session Ref: #HYB-004-92</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900/20 border border-slate-800 rounded-[2.5rem] p-10 relative overflow-hidden group">
+                            <div class="absolute top-0 right-0 p-8 text-slate-800 opacity-20 transform translate-x-4 -translate-y-4 group-hover:scale-110 transition">
+                                <i class="fas fa-lock text-9xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-4">Elite Accountability</h3>
+                            <p class="text-slate-400 text-sm leading-relaxed mb-6">
+                                Ndiema Hybrid Coaching is built on the philosophy that **time is our highest leverage asset.** To protect your investment, this portal locks 24 hours prior to every session.
+                            </p>
+                            <button onclick="showSection('contract')" class="bg-white text-black text-xs font-black uppercase tracking-[0.2em] px-8 py-4 rounded-xl hover:scale-105 transition">Review Agreement</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- CONTRACT SECTION -->
+                <section id="section-contract" class="content-section hidden">
+                    <div class="max-w-4xl mx-auto space-y-8">
+                        <div id="contract-document" class="bg-white text-[#0a0a0a] rounded-[3rem] shadow-2xl overflow-hidden border-[12px] border-slate-900">
+                            <div class="bg-slate-950 p-12 flex justify-between items-center border-b border-slate-800">
+                                <div>
+                                    <h1 class="text-3xl font-black italic tracking-tighter text-white">NDIEMA HYBRID</h1>
+                                    <p class="text-blue-500 text-[10px] font-bold uppercase tracking-[0.4em] mt-2">Legal Binding Protocol</p>
+                                </div>
+                                <div class="text-right hidden md:block">
+                                    <p class="text-slate-500 text-[9px] uppercase font-bold tracking-widest">Status: Active Internal Use</p>
+                                    <p class="text-slate-400 font-mono text-xs">V. 2026.4.1</p>
+                                </div>
+                            </div>
+                            
+                            <div class="p-10 md:p-16 space-y-12 overflow-y-auto max-h-[60vh] scrollbar-hide text-[15px] leading-relaxed">
+                                <section>
+                                    <h3 class="text-lg font-black uppercase tracking-tight mb-4 border-b-2 border-slate-100 pb-2">I. The 24-Hour Immutable Boundary</h3>
+                                    <p class="mb-4">The Client acknowledges that professional coaching requires strict resource allocation. As such, any session that is canceled or rescheduled within **24 hours of the designated start time** is irrevocably forfeited.</p>
+                                    <div class="bg-slate-50 p-6 rounded-3xl border-l-8 border-red-600 italic font-medium">
+                                        "My commitment to your results is absolute. Your commitment to the schedule must be equal."
+                                    </div>
+                                </section>
+
+                                <section>
+                                    <h3 class="text-lg font-black uppercase tracking-tight mb-4 border-b-2 border-slate-100 pb-2">II. Absence Policy (No-Shows)</h3>
+                                    <p>Failure to attend a session without prior digital notification via this portal will result in immediate suspension of the Milestone Tracker until a Re-Alignment Meeting is scheduled at the coach's discretion.</p>
+                                </section>
+
+                                <section>
+                                    <h3 class="text-lg font-black uppercase tracking-tight mb-4 border-b-2 border-slate-100 pb-2">III. Financial Continuity</h3>
+                                    <p>The coaching package represents a reserved block of elite professional time. No refunds, partial or full, shall be issued for sessions lost due to late cancellations, no-shows, or program drop-outs.</p>
+                                </section>
+
+                                <div id="signed-metadata" class="hidden pt-12 mt-12 border-t-2 border-slate-100 grid grid-cols-2 gap-10">
+                                    <div class="space-y-1">
+                                        <p class="text-[10px] uppercase font-bold text-slate-400">Digital Seal</p>
+                                        <p id="pdf-sig-name" class="text-3xl font-serif italic text-blue-900"></p>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <p class="text-[10px] uppercase font-bold text-slate-400">Timestamped Authentication</p>
+                                        <p id="pdf-sig-date" class="text-sm font-mono font-bold"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="sign-controls" class="bg-slate-900/80 backdrop-blur-xl p-10 rounded-[2.5rem] border border-slate-800 space-y-8">
+                            <div class="flex items-center space-x-4 group cursor-pointer" onclick="document.getElementById('agree-check').click()">
+                                <input type="checkbox" id="agree-check" class="w-6 h-6 rounded-lg bg-slate-950 border-slate-700 text-blue-600 focus:ring-0">
+                                <p class="text-sm text-slate-400 font-bold tracking-tight">I acknowledge the 24-hour rule as the primary boundary of my coaching success.</p>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-2">Digital Signature (Legal Name)</label>
+                                <input type="text" id="signature-input" class="w-full bg-slate-950 border border-slate-800 rounded-2xl p-6 italic text-2xl font-serif focus:outline-none focus:ring-2 focus:ring-blue-500 text-white" placeholder="John Doe">
+                            </div>
+                            <button onclick="handleSignature()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-5 rounded-2xl transition-all shadow-2xl shadow-blue-600/20 uppercase tracking-[0.2em]">Verify Identity & Lock Commitment</button>
+                        </div>
+
+                        <div id="signed-success" class="hidden space-y-6">
+                            <div class="bg-green-500/10 border border-green-500/30 p-10 rounded-[2.5rem] text-center">
+                                <i class="fas fa-check-double text-5xl text-green-500 mb-4"></i>
+                                <h4 class="text-2xl font-black text-white italic">CONTRACT SEALED</h4>
+                                <p class="text-slate-400 mt-2">Authentication successful. Your program status is now ACTIVE.</p>
+                            </div>
+                            <button onclick="downloadContract()" class="w-full bg-white text-black font-black py-5 rounded-2xl transition-all flex items-center justify-center space-x-4 uppercase tracking-widest text-sm">
+                                <i class="fas fa-file-pdf"></i>
+                                <span>Export Authenticated Agreement</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SCHEDULE SECTION -->
+                <section id="section-schedule" class="hidden content-section space-y-10">
+                    <div class="bg-slate-900/30 border border-slate-800 p-12 rounded-[3rem] relative overflow-hidden">
+                        <header class="mb-12 flex justify-between items-start">
+                            <div>
+                                <h2 class="text-4xl font-black tracking-tighter italic">Schedule Vault</h2>
+                                <p class="text-slate-500 mt-1 uppercase text-[10px] font-bold tracking-[0.3em]">Boundary Enforcement Protocol active</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <div class="bg-red-500/10 text-red-500 text-[10px] font-bold px-4 py-2 rounded-full border border-red-500/20 uppercase tracking-widest">
+                                    <i class="fas fa-ban mr-2"></i>Locked < 24H
+                                </div>
+                            </div>
+                        </header>
+
+                        <div class="grid grid-cols-7 gap-4">
+                            <div class="text-[10px] font-black text-slate-600 uppercase text-center mb-4 tracking-widest">Mon</div>
+                            <div class="text-[10px] font-black text-slate-600 uppercase text-center mb-4 tracking-widest">Tue</div>
+                            <div class="text-[10px] font-black text-slate-600 uppercase text-center mb-4 tracking-widest">Wed</div>
+                            <div class="text-[10px] font-black text-slate-600 uppercase text-center mb-4 tracking-widest">Thu</div>
+                            <div class="text-[10px] font-black text-slate-600 uppercase text-center mb-4 tracking-widest">Fri</div>
+                            <div class="text-[10px] font-black text-slate-600 uppercase text-center mb-4 tracking-widest">Sat</div>
+                            <div class="text-[10px] font-black text-slate-600 uppercase text-center mb-4 tracking-widest">Sun</div>
+
+                            <!-- Mock Calendar with Locked State -->
+                            <div class="h-32 bg-slate-950/30 border border-slate-900 rounded-3xl flex items-center justify-center text-slate-800 font-bold">22</div>
+                            <div class="h-32 bg-slate-950/30 border border-slate-900 rounded-3xl flex items-center justify-center text-slate-800 font-bold">23</div>
+                            <div class="h-32 locked-zone border-2 border-red-500/30 rounded-3xl flex flex-col items-center justify-center relative group">
+                                <span class="text-red-500 text-2xl font-black opacity-30">24</span>
+                                <div class="absolute inset-0 bg-red-600/20 hidden group-hover:flex items-center justify-center text-center p-4 backdrop-blur-md">
+                                    <p class="text-[10px] font-black leading-tight text-white uppercase tracking-widest">Locked Area<br>Boundary Hit</p>
+                                </div>
+                            </div>
+                            <div class="h-32 bg-blue-600 rounded-[2rem] flex flex-col items-center justify-center shadow-2xl shadow-blue-600/30 ring-4 ring-blue-500/20 scale-105">
+                                <span class="text-white text-3xl font-black italic">25</span>
+                                <span class="text-[9px] text-blue-200 uppercase font-black tracking-widest mt-1">Milestone 05</span>
+                            </div>
+                            <div class="h-32 bg-slate-900 border border-slate-800 rounded-3xl flex items-center justify-center hover:bg-slate-800 cursor-pointer transition">26</div>
+                            <div class="h-32 bg-slate-900 border border-slate-800 rounded-3xl flex items-center justify-center hover:bg-slate-800 cursor-pointer transition">27</div>
+                            <div class="h-32 bg-slate-900 border border-slate-800 rounded-3xl flex items-center justify-center hover:bg-slate-800 cursor-pointer transition">28</div>
+                        </div>
+
+                        <div class="mt-12 p-8 bg-slate-950 rounded-3xl border border-slate-800 flex items-center justify-between">
+                            <div class="flex items-center space-x-6">
+                                <div class="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500 pulse-boundary">
+                                    <i class="fas fa-shield-halved text-2xl"></i>
+                                </div>
+                                <div>
+                                    <p class="text-lg font-bold">The rescheduling window for Milestone 05 has closed.</p>
+                                    <p class="text-xs text-slate-500">System time: 21:18:42 GMT. All edits now require high-priority clearance.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // State
+        let state = {
+            signed: false,
+            clientName: "John Doe"
+        };
+
+        // Navigation
+        function showSection(id) {
+            document.querySelectorAll('.content-section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(`section-${id}`).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                const target = btn.dataset.target;
+                if(target === id) {
+                    btn.classList.add('nav-active');
+                    btn.classList.remove('text-slate-500', 'hover:bg-slate-900');
+                } else {
+                    btn.classList.remove('nav-active');
+                    btn.classList.add('text-slate-500', 'hover:bg-slate-900');
+                }
+            });
+        }
+
+        // Login Logic
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            document.getElementById('login-view').style.display = 'none';
+            document.getElementById('app-view').classList.remove('hidden');
+        });
+
+        // Signature Logic
+        function handleSignature() {
+            const name = document.getElementById('signature-input').value;
+            const check = document.getElementById('agree-check').checked;
+
+            if(!check || name.length < 5) {
+                alert("Please complete the legal signature and acknowledge the rules.");
+                return;
+            }
+
+            state.signed = true;
+            state.clientName = name;
+
+            // UI Transition
+            document.getElementById('sign-controls').classList.add('hidden');
+            document.getElementById('signed-success').classList.remove('hidden');
+            document.getElementById('signed-metadata').classList.remove('hidden');
+            document.getElementById('pdf-sig-name').innerText = name;
+            document.getElementById('pdf-sig-date').innerText = new Date().toUTCString();
+            
+            // Dashboard Status Update
+            const statusCard = document.getElementById('status-card');
+            statusCard.className = "bg-green-500/5 border border-green-500/20 p-8 rounded-[2rem]";
+            document.getElementById('status-text').innerText = "Account Active";
+            document.getElementById('status-text').className = "text-xl font-bold tracking-tight text-green-500";
+            document.getElementById('status-icon').className = "fas fa-shield-check text-xl";
+            document.getElementById('status-sub').innerText = "Commitment Verified";
+        }
+
+        // PDF Generation
+        function downloadContract() {
+            const element = document.getElementById('contract-document');
+            const opt = {
+                margin:       0.3,
+                filename:     `NDIEMA_HYBRID_${state.clientName.toUpperCase()}_CONTRACT.pdf`,
+                image:        { type: 'jpeg', quality: 1 },
+                html2canvas:  { scale: 3, useCORS: true },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            const originalMaxHeight = element.style.maxHeight;
+            element.style.maxHeight = 'none';
+            
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.style.maxHeight = originalMaxHeight;
+            });
+        }
+    </script>
+</body>
+</html>
